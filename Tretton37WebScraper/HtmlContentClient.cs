@@ -16,4 +16,10 @@ public class HtmlContentClient : IHtmlContentClient
         var responseMessage = await _httpClient.GetAsync(url);
         return await responseMessage.Content.ReadAsStringAsync();
     }
+
+    public async Task<Stream> GetContentAsStream(string url)
+    {
+        var responseMessage = await _httpClient.GetAsync(url);
+        return await responseMessage.Content.ReadAsStreamAsync();
+    }
 }

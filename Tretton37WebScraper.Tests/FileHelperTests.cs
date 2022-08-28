@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Tretton37WebScraper.Abstractions;
 using Xunit;
 

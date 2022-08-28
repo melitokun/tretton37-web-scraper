@@ -28,14 +28,20 @@ public class WebScraper
             var filePath = $"{downloadPath}{FileHelper.GetFilePath(htmlLink)}";
             var folderPath = $"{downloadPath}{FileHelper.GetFolderPath(htmlLink)}";
 
-            var content = await _htmlContentClient.GetContentAsString(htmlLink.RawLink);
-            var htmlLinks = _htmlLinkFinder.FindAll(content, htmlLink.RawLink).Where(l => !_concurrentLinks.Keys.Contains(l.Path));
+            if (htmlLink.IsFile)
+            {
+                var streamContent = await _htmlContentClient.GetContentAsStream(htmlLink.RawLink);
+                await FileHelper.WriteToFile(streamContent, folderPath, filePath);
+                await Task.CompletedTask;
+            }
+            
+            var stringContent = await _htmlContentClient.GetContentAsString(htmlLink.RawLink);
+            await FileHelper.WriteToFile(stringContent, folderPath, filePath);
 
-            Directory.CreateDirectory(folderPath);
-            await File.WriteAllTextAsync(filePath, content);
-
-            var tasks = htmlLinks.Select(async link => await TraverseAndDownloadAsync(link, downloadPath));
-            await Task.WhenAll(tasks);
+            var htmlLinks = _htmlLinkFinder.FindAll(stringContent, htmlLink.RawLink).Where(l => !_concurrentLinks.Keys.Contains(l.Path));
+            
+            var recursiveTasks = htmlLinks.Select(async link => await TraverseAndDownloadAsync(link, downloadPath));
+            await Task.WhenAll(recursiveTasks);
         }
     }
 }

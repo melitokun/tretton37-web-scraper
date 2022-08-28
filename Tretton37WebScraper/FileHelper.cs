@@ -20,4 +20,20 @@ public static class FileHelper
         pathArr[^1] = string.Empty;
         return string.Join("/", pathArr);
     }
+
+    public static async Task WriteToFile(Stream stream, string folderPath, string filePath)
+    {
+        Directory.CreateDirectory(folderPath);
+        
+        await using var fileStream = File.Create(filePath);
+        stream.Seek(0, SeekOrigin.Begin);
+        await stream.CopyToAsync(fileStream);
+        fileStream.Close();
+    }
+
+    public static async Task WriteToFile(string content, string folderPath, string filePath)
+    {
+        Directory.CreateDirectory(folderPath);
+        await File.WriteAllTextAsync(filePath, content);
+    }
 }

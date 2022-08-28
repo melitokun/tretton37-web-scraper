@@ -21,8 +21,11 @@ public static class FileHelper
         return string.Join("/", pathArr);
     }
 
-    public static async Task WriteToFile(Stream stream, string folderPath, string filePath)
+    public static async Task WriteToFile(Stream stream, HtmlLink htmlLink, string rootFolder)
     {
+        var filePath = $"{rootFolder}{GetFilePath(htmlLink)}";
+        var folderPath = $"{rootFolder}{GetFolderPath(htmlLink)}";
+        
         Directory.CreateDirectory(folderPath);
         
         await using var fileStream = File.Create(filePath);
@@ -31,8 +34,11 @@ public static class FileHelper
         fileStream.Close();
     }
 
-    public static async Task WriteToFile(string content, string folderPath, string filePath)
+    public static async Task WriteToFile(string content, HtmlLink htmlLink, string rootFolder)
     {
+        var filePath = $"{rootFolder}{GetFilePath(htmlLink)}";
+        var folderPath = $"{rootFolder}{GetFolderPath(htmlLink)}";
+        
         Directory.CreateDirectory(folderPath);
         await File.WriteAllTextAsync(filePath, content);
     }

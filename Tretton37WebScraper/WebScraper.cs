@@ -25,8 +25,8 @@ public class WebScraper
 
         if (_concurrentLinks.TryAdd(htmlLink.Path, htmlLink))
         {
-            var filePath = GetFilePath(htmlLink, downloadPath);
-            var folderPath = GetFolderPath(htmlLink, downloadPath);
+            var filePath = $"{downloadPath}{FileHelper.GetFilePath(htmlLink)}";
+            var folderPath = $"{downloadPath}{FileHelper.GetFolderPath(htmlLink)}";
 
             var content = await _htmlContentClient.GetContentAsString(htmlLink.RawLink);
             var htmlLinks = _htmlLinkFinder.FindAll(content, htmlLink.RawLink).Where(l => !_concurrentLinks.Keys.Contains(l.Path));
@@ -37,22 +37,5 @@ public class WebScraper
             var tasks = htmlLinks.Select(async link => await TraverseAndDownloadAsync(link, downloadPath));
             await Task.WhenAll(tasks);
         }
-    }
-
-    private string GetFilePath(HtmlLink htmlLink, string downloadPath)
-    {
-        return htmlLink.IsFile ? $"{downloadPath}{htmlLink.Path}" : $"{downloadPath}{htmlLink.Path}/index.html";
-    }
-
-    private string GetFolderPath(HtmlLink htmlLink, string downloadPath)
-    {
-        if (!htmlLink.IsFile)
-        {
-            return $"{downloadPath}{htmlLink.Path}";
-        }
-
-        var pathArr = htmlLink.Path.Split("/");
-        pathArr[^1] = string.Empty;
-        return $"{downloadPath}{string.Join("/", pathArr)}";
     }
 }
